@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DILR PYQ Tracker — iQuanta CAT</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --bg4: #212636;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --orange: #f97316;
+  --orange-dim: #c2580e;
+  --orange-bg: rgba(249,115,22,0.12);
+  --orange-bg2: rgba(249,115,22,0.06);
+  --green: #22c55e;
+  --green-dim: #16a34a;
+  --green-bg: rgba(34,197,94,0.12);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #475569;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+
+/* LAYOUT */
+.app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-main {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+.logo-main span { color: var(--orange); }
+.logo-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* PROGRESS RING */
+.progress-ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+.ring-container { position: relative; width: 110px; height: 110px; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--bg4); stroke-width: 8; }
+.ring-fill { fill: none; stroke: var(--orange); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1); }
+.ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ring-pct {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.ring-label {
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* STAT GRID */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.stat-value.orange { color: var(--orange); }
+.stat-value.green { color: var(--green); }
+.stat-value.red { color: var(--red); }
+
+/* TODAY BAR */
+.today-card {
+  background: var(--orange-bg2);
+  border: 1px solid rgba(249,115,22,0.2);
+  border-radius: 12px;
+  padding: 14px;
+}
+.today-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.today-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+  font-weight: 600;
+}
+.today-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.today-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.today-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg4);
+  transition: background 0.3s;
+}
+.today-dot.active { background: var(--orange); }
+.today-dot.complete { background: var(--green); }
+.today-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.today-count {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.today-count .num { color: var(--orange); }
+.streak-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-weight: 600;
+  border: 1px solid rgba(245,158,11,0.2);
+}
+
+/* PROGRESS BAR */
+.bar-wrap { margin-bottom: 4px; }
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 6px;
+  font-family: var(--mono);
+}
+.bar-bg {
+  background: var(--bg4);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+.bar-fill.green { background: var(--green); }
+
+/* RESET BTN */
+.reset-btn {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text3);
+  font-family: var(--sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.reset-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+/* MAIN CONTENT */
+.main { padding: 24px 28px; display: flex; flex-direction: column; gap: 28px; }
+
+/* SECTION HEADERS */
+.section-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  font-weight: 600;
+}
+.section-action {
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.section-action:hover { color: var(--text); border-color: var(--border2); }
+
+/* CALENDAR */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cal-nav-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.cal-nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+.cal-month-lbl {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  min-width: 90px;
+  text-align: center;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-dow {
+  font-size: 9px;
+  text-align: center;
+  color: var(--text3);
+  padding: 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  position: relative;
+  transition: all 0.2s;
+}
+.cal-cell.empty { background: transparent; border-color: transparent; }
+.cal-cell.today { border-color: var(--orange); color: var(--orange); }
+.cal-cell.future { opacity: 0.25; }
+.cal-cell.miss { background: var(--red-bg); border-color: rgba(239,68,68,0.25); }
+.cal-cell.miss .cal-num { color: var(--red); }
+.cal-cell.s1 { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+.cal-cell.s1 .cal-num { color: var(--green); }
+.cal-cell.s2 { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.35); }
+.cal-cell.s2 .cal-num { color: var(--green); }
+.cal-cell.s3 { background: rgba(34,197,94,0.28); border-color: rgba(34,197,94,0.5); }
+.cal-cell.s3 .cal-num { color: #86efac; font-weight: 700; }
+.cal-num { font-family: var(--mono); font-size: 11px; line-height: 1; }
+.cal-sets-lbl { font-size: 8px; color: var(--text3); margin-top: 1px; }
+.cal-cell.s1 .cal-sets-lbl,
+.cal-cell.s2 .cal-sets-lbl,
+.cal-cell.s3 .cal-sets-lbl { color: rgba(134,239,172,0.7); }
+.cal-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text3);
+}
+.leg-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* LOG */
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.log-entry {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  background: var(--bg2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.log-ts { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.log-name { color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log-tag {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.log-tag.done { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.log-tag.undo { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.log-empty { text-align: center; color: var(--text3); font-size: 12px; padding: 20px; }
+
+/* ERA SECTIONS */
+.era-block { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.era-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.era-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+}
+.era-prog-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--orange);
+  background: var(--orange-bg);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(249,115,22,0.2);
+}
+.era-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.paper-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.paper-meta { min-width: 160px; }
+.paper-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.paper-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.paper-sets-wrap { flex: 1; }
+.sets-row { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.sb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  transition: all 0.15s;
+  user-select: none;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.sb:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-bg); transform: scale(1.08); }
+.sb.done {
+  background: var(--green-bg);
+  border-color: rgba(34,197,94,0.4);
+  color: var(--green);
+}
+.sb.done:hover { background: var(--red-bg); border-color: rgba(239,68,68,0.4); color: var(--red); }
+
+/* ERA MINI PROGRESS BAR */
+.era-minibar {
+  height: 2px;
+  background: var(--bg4);
+  border-radius: 1px;
+  margin: 6px 0 0;
+  overflow: hidden;
+}
+.era-minibar-fill {
+  height: 100%;
+  background: var(--orange);
+  border-radius: 1px;
+  transition: width 0.4s;
+}
+
+/* EXPORT/IMPORT */
+.data-row {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.data-btn {
+  flex: 1;
+  padding: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text3);
+  font-family: var(--sans);
+  font-size: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.data-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-bg); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  z-index: 999;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.green { border-color: rgba(34,197,94,0.3); }
+.toast.orange { border-color: rgba(249,115,22,0.3); }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .paper-row { flex-direction: column; gap: 6px; }
+  .paper-meta { min-width: unset; }
+}
+/* ── GITHUB SYNC ── */
+.sync-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); color: var(--text3); cursor: pointer; background: var(--bg3); transition: all 0.2s; font-family: var(--mono); white-space: nowrap; width: 100%; justify-content: center; margin-top: 8px; }
+.sync-pill:hover { border-color: var(--orange); color: var(--orange); }
+.sync-pill.synced { color: var(--green); border-color: rgba(34,197,94,0.3); background: var(--green-bg); }
+.sync-pill.syncing { color: var(--amber); border-color: rgba(245,158,11,0.3); background: var(--amber-bg); animation: sppulse 1s infinite; }
+.sync-pill.error { color: var(--red); border-color: rgba(239,68,68,0.3); background: var(--red-bg); }
+@keyframes sppulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+/* GH Modal */
+.gh-overlay { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+.gh-overlay.show { display: flex; }
+.gh-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; padding: 26px; width: 100%; max-width: 490px; margin: 16px; max-height: 92vh; overflow-y: auto; }
+.gh-title { font-family: var(--sans); font-size: 18px; font-weight: 700; color: var(--orange); margin-bottom: 4px; letter-spacing: 0.03em; }
+.gh-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 18px; letter-spacing: 0.05em; }
+.gh-step { display: flex; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+.gh-step-n { font-family: var(--sans); font-size: 20px; font-weight: 800; color: var(--orange); min-width: 22px; }
+.gh-step-b { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.gh-step-b a { color: var(--green); text-decoration: none; }
+.gh-code { font-family: var(--mono); font-size: 10px; background: var(--bg4); padding: 2px 5px; border-radius: 3px; color: var(--text); }
+.gh-sep { height: 1px; background: var(--border); margin: 16px 0; }
+.gh-label { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 5px; display: block; letter-spacing: 0.08em; text-transform: uppercase; }
+.gh-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 13px; font-family: var(--sans); outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+.gh-input:focus { border-color: var(--orange); }
+.gh-gist-id-row { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: -6px; margin-bottom: 14px; padding: 9px 12px; background: var(--bg3); border-radius: 6px; border: 1px solid var(--border); display: none; }
+.gh-gist-id-val { color: var(--amber); font-weight: 700; cursor: pointer; }
+.gh-msg { font-family: var(--mono); font-size: 11px; padding: 8px 12px; border-radius: 6px; margin-top: 8px; display: none; }
+.gh-msg.show { display: block; }
+.gh-msg.ok { background: var(--green-bg); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+.gh-msg.fail { background: var(--red-bg); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+.gh-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+.gh-btn { font-size: 12px; padding: 7px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border2); font-family: var(--sans); font-weight: 600; transition: all 0.2s; }
+.gh-btn-primary { background: var(--orange); color: #fff; border-color: var(--orange); }
+.gh-btn-primary:hover { background: var(--orange-dim); }
+.gh-btn-ghost { background: transparent; color: var(--text2); }
+.gh-btn-ghost:hover { border-color: var(--text2); }
+.gh-btn-danger { background: transparent; color: var(--red); border-color: rgba(239,68,68,0.3); margin-right: auto; }
+.gh-btn-danger:hover { background: var(--red-bg); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-main">DILR<span>.</span>track</div>
+      <div class="logo-sub">iQuanta CAT PYQ · 2000–2025</div>
+    </div>
+
+    <!-- RING -->
+    <div class="progress-ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+          <circle class="ring-bg" cx="55" cy="55" r="46"/>
+          <circle class="ring-fill" id="ring-fill" cx="55" cy="55" r="46"
+            stroke-dasharray="289" stroke-dashoffset="289"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-label">done</div>
+        </div>
+      </div>
+      <div class="bar-wrap" style="width:100%">
+        <div class="bar-label">
+          <span id="bar-done">0 sets done</span>
+          <span id="bar-rem">162 left</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="main-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Sets done</div>
+        <div class="stat-value orange" id="s-done">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="s-rem">162</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days left</div>
+        <div class="stat-value" id="s-days">54</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Streak</div>
+        <div class="stat-value green" id="s-streak">0d</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg / day</div>
+        <div class="stat-value" id="s-avg">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total days</div>
+        <div class="stat-value" id="s-elapsed">0</div>
+      </div>
+    </div>
+
+    <!-- TODAY -->
+    <div class="today-card">
+      <div class="today-header">
+        <div class="today-title">Today</div>
+        <div class="today-date" id="today-date"></div>
+      </div>
+      <div class="today-dots">
+        <div class="today-dot" id="td0"></div>
+        <div class="today-dot" id="td1"></div>
+        <div class="today-dot" id="td2"></div>
+      </div>
+      <div class="today-row">
+        <div class="today-count"><span class="num" id="tc-num">0</span> / 3 sets</div>
+        <div class="streak-badge" id="streak-badge" style="display:none"></div>
+      </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetDay()">Reset today's count</button>
+
+    <!-- EXPORT / IMPORT -->
+    <div class="data-row">
+      <button class="data-btn" onclick="exportData()">Export</button>
+      <button class="data-btn" onclick="importData()">Import</button>
+    </div>
+    <div class="sync-pill offline" id="syncPill" onclick="openGHConfig()">
+      <span id="syncIcon">⬡</span>&nbsp;<span id="syncLabel">github sync: not set up</span>
+    </div>
+  </aside>
+
+  <!-- GITHUB CONFIG MODAL -->
+  <div class="gh-overlay" id="modal-gh">
+    <div class="gh-box">
+      <div class="gh-title">GitHub Sync</div>
+      <div class="gh-sub">ONE-TIME SETUP · PRIVATE GIST · WORKS ACROSS ALL DEVICES</div>
+      <div class="gh-step"><div class="gh-step-n">1</div><div class="gh-step-b">Go to <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>Note: <span class="gh-code">DILR Tracker</span> · Expiry: <span class="gh-code">No expiration</span> · Scope: tick only <span class="gh-code">gist</span> → Generate → copy.</div></div>
+      <div class="gh-step"><div class="gh-step-n">2</div><div class="gh-step-b">Paste the token below. Leave Gist ID blank on first device — auto-created. On your second device, paste the same token + the Gist ID shown after first save.</div></div>
+      <div class="gh-sep"></div>
+      <label class="gh-label">GitHub Personal Access Token (Classic)</label>
+      <input class="gh-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <label class="gh-label">Gist ID <span style="text-transform:none;letter-spacing:0;color:var(--text3);font-weight:400;">(leave blank on first device)</span></label>
+      <input class="gh-input" id="ghGistId" placeholder="e.g. a1b2c3d4e5f6..." autocomplete="off">
+      <div class="gh-gist-id-row" id="ghGistIdRow">Your Gist ID: <span class="gh-gist-id-val" id="ghGistIdVal" onclick="copyDilrGistId()" title="Click to copy">—</span> <span>(copy to other devices)</span></div>
+      <div class="gh-msg" id="ghMsg"></div>
+      <div class="gh-actions">
+        <button class="gh-btn gh-btn-danger" onclick="clearGHConfig()">Clear Config</button>
+        <button class="gh-btn gh-btn-ghost" onclick="document.getElementById('modal-gh').classList.remove('show')">Cancel</button>
+        <button class="gh-btn gh-btn-primary" id="ghConnectBtn" onclick="testAndSaveGHConfig()">Connect &amp; Sync</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- CALENDAR -->
+    <section>
+      <div class="section-hdr">
+        <span class="section-title">Activity calendar</span>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">&#8592;</button>
+          <span class="cal-month-lbl" id="cal-month-lbl"></span>
+          <button class="cal-nav-btn" onclick="calNext()">&#8594;</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <div class="leg"><div class="leg-sq" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3)"></div>Missed</div>
+        <div class="leg"><div class="leg-sq" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2)"></div>1 set</div>
+        <div class="leg"><div class="leg-sq" style="background:rgba(34,197,94,0.16);border:1px solid rgba(34,197,94,0.35)"></div>2 sets</div>
+        <div class="leg"><div class="leg-sq" style="background:rgba(34,197,94,0.28);border:1px solid rgba(34,197,94,0.5)"></div>Target hit (3+)</div>
+      </div>
+    </section>
+
+    <!-- SESSION LOG -->
+    <section>
+      <div class="section-hdr">
+        <span class="section-title">Session log</span>
+        <button class="section-action" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="log-list" id="log-list"></div>
+    </section>
+
+    <!-- SETS BY ERA -->
+    <section>
+      <div class="section-hdr">
+        <span class="section-title">Sets tracker</span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">click to mark done · click again to undo</span>
+      </div>
+      <div id="era-container" style="display:flex;flex-direction:column;gap:12px;"></div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PAPERS = [
+  {era:"Modern — 2024–2025", ek:"e2425", papers:[
+    {name:"CAT 2025 Slot 1",id:"25s1",sets:4},{name:"CAT 2025 Slot 2",id:"25s2",sets:4},{name:"CAT 2025 Slot 3",id:"25s3",sets:4},
+    {name:"CAT 2024 Slot 1",id:"24s1",sets:4},{name:"CAT 2024 Slot 2",id:"24s2",sets:4},{name:"CAT 2024 Slot 3",id:"24s3",sets:4},
+  ]},
+  {era:"Recent — 2021–2023", ek:"e2123", papers:[
+    {name:"CAT 2023 Slot 1",id:"23s1",sets:4},{name:"CAT 2023 Slot 2",id:"23s2",sets:4},{name:"CAT 2023 Slot 3",id:"23s3",sets:4},
+    {name:"CAT 2022 Slot 1",id:"22s1",sets:4},{name:"CAT 2022 Slot 2",id:"22s2",sets:4},{name:"CAT 2022 Slot 3",id:"22s3",sets:4},
+    {name:"CAT 2021 Slot 1",id:"21s1",sets:4},{name:"CAT 2021 Slot 2",id:"21s2",sets:4},{name:"CAT 2021 Slot 3",id:"21s3",sets:4},
+  ]},
+  {era:"2020", ek:"e2020", papers:[
+    {name:"CAT 2020 Slot 1",id:"20s1",sets:5},{name:"CAT 2020 Slot 2",id:"20s2",sets:5},{name:"CAT 2020 Slot 3",id:"20s3",sets:5},
+  ]},
+  {era:"Standard — 2017–2019", ek:"e1719", papers:[
+    {name:"CAT 2019 Slot 1",id:"19s1",sets:6},{name:"CAT 2019 Slot 2",id:"19s2",sets:6},
+    {name:"CAT 2018 Slot 1",id:"18s1",sets:6},{name:"CAT 2018 Slot 2",id:"18s2",sets:6},
+    {name:"CAT 2017 Slot 1",id:"17s1",sets:6},{name:"CAT 2017 Slot 2",id:"17s2",sets:6},
+  ]},
+  {era:"Classic — 2014–2016", ek:"e1416", papers:[
+    {name:"CAT 2016",id:"2016",sets:6},{name:"CAT 2015",id:"2015",sets:6},{name:"CAT 2014",id:"2014",sets:6},
+  ]},
+  {era:"Classic — 2011–2013", ek:"e1113", papers:[
+    {name:"CAT 2013",id:"2013",sets:3},{name:"CAT 2012",id:"2012",sets:3},{name:"CAT 2011",id:"2011",sets:3},
+  ]},
+  {era:"Vintage — 2000–2009", ek:"e0009", papers:[
+    {name:"CAT 2009",id:"2009",sets:3},{name:"CAT 2008",id:"2008",sets:3},
+    {name:"CAT 2003 Revised",id:"2003r",sets:3},{name:"CAT 2003 Leaked",id:"2003l",sets:3},
+    {name:"CAT 2002",id:"2002",sets:3},{name:"CAT 2001",id:"2001",sets:3},{name:"CAT 2000",id:"2000",sets:3},
+  ]},
+];
+
+const TOTAL = 162;
+const LS = { done:"dilr_done", log:"dilr_log", start:"dilr_start" };
+
+// ── GITHUB GIST SYNC ─────────────────────────────────────
+const GH_CFG_KEY = 'dilr_gh_cfg';
+const GIST_FILENAME = 'dilr_tracker_data.json';
+const DATA_KEYS_DILR = [LS.done, LS.log, LS.start];
+
+function getGHCfg(){try{const v=localStorage.getItem(GH_CFG_KEY);return v?JSON.parse(v):null;}catch{return null;}}
+function setGHCfg(v){localStorage.setItem(GH_CFG_KEY,JSON.stringify(v));}
+
+let _syncDebounce=null, _lastPullHash=null;
+
+function setSyncUI(state,label){
+  const pill=document.getElementById('syncPill');
+  const icon=document.getElementById('syncIcon');
+  const lbl=document.getElementById('syncLabel');
+  if(!pill) return;
+  pill.className='sync-pill '+state;
+  icon.textContent={offline:'⬡',syncing:'↻',synced:'✓',error:'✗'}[state]||'⬡';
+  lbl.textContent='github sync: '+(label||state);
+}
+
+async function pullFromGist(cfg){
+  if(!cfg?.token||!cfg?.gistId) return false;
+  setSyncUI('syncing','pulling…');
+  try{
+    const r=await fetch(`https://api.github.com/gists/${cfg.gistId}`,{headers:{Authorization:`token ${cfg.token}`,Accept:'application/vnd.github.v3+json'}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const raw=data.files?.[GIST_FILENAME]?.content;
+    if(!raw) throw new Error('File not found');
+    const parsed=JSON.parse(raw);
+    if(parsed[LS.done]!==undefined) localStorage.setItem(LS.done,JSON.stringify(parsed[LS.done]));
+    if(parsed[LS.log]!==undefined) localStorage.setItem(LS.log,JSON.stringify(parsed[LS.log]));
+    if(parsed[LS.start]!==undefined) localStorage.setItem(LS.start,JSON.stringify(parsed[LS.start]));
+    _lastPullHash=raw;
+    setSyncUI('synced','synced');
+    return true;
+  }catch(e){setSyncUI('error','pull failed');console.error(e);return false;}
+}
+
+async function pushToGist(){
+  const cfg=getGHCfg();
+  if(!cfg?.token||!cfg?.gistId){setSyncUI('offline','not set up');return;}
+  setSyncUI('syncing','saving…');
+  const payload={};
+  payload[LS.done]=[...done];
+  payload[LS.log]=log;
+  payload[LS.start]=startDate;
+  const content=JSON.stringify(payload,null,2);
+  if(content===_lastPullHash){setSyncUI('synced','synced');return;}
+  try{
+    const r=await fetch(`https://api.github.com/gists/${cfg.gistId}`,{method:'PATCH',headers:{Authorization:`token ${cfg.token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify({files:{[GIST_FILENAME]:{content}}})});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    _lastPullHash=content;
+    setSyncUI('synced','synced');
+  }catch(e){setSyncUI('error','save failed');console.error(e);}
+}
+
+function schedulePush(){clearTimeout(_syncDebounce);setSyncUI('syncing','saving…');_syncDebounce=setTimeout(pushToGist,1500);}
+
+async function createGist(token){
+  const payload={};
+  payload[LS.done]=[...done]; payload[LS.log]=log; payload[LS.start]=startDate;
+  const r=await fetch('https://api.github.com/gists',{method:'POST',headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify({description:'DILR Tracker data',public:false,files:{[GIST_FILENAME]:{content:JSON.stringify(payload,null,2)}}})});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return (await r.json()).id;
+}
+
+function openGHConfig(){
+  const cfg=getGHCfg();
+  document.getElementById('ghToken').value=cfg?.token||'';
+  document.getElementById('ghGistId').value=cfg?.gistId||'';
+  document.getElementById('ghMsg').className='gh-msg';
+  if(cfg?.gistId){document.getElementById('ghGistIdRow').style.display='block';document.getElementById('ghGistIdVal').textContent=cfg.gistId;}
+  else document.getElementById('ghGistIdRow').style.display='none';
+  document.getElementById('modal-gh').classList.add('show');
+}
+
+function copyDilrGistId(){
+  const id=getGHCfg()?.gistId; if(!id) return;
+  navigator.clipboard.writeText(id).then(()=>showToast('Gist ID copied!','green')).catch(()=>{});
+}
+
+async function testAndSaveGHConfig(){
+  const token=document.getElementById('ghToken').value.trim();
+  let gistId=document.getElementById('ghGistId').value.trim();
+  const msg=document.getElementById('ghMsg');
+  const btn=document.getElementById('ghConnectBtn');
+  if(!token){msg.className='gh-msg show fail';msg.textContent='⚠ Token is required.';return;}
+  btn.textContent='Connecting…';btn.disabled=true;msg.className='gh-msg';
+  try{
+    if(!gistId){
+      msg.className='gh-msg show';msg.style.color='var(--amber)';msg.textContent='Creating new private Gist…';
+      gistId=await createGist(token);
+    } else {
+      const r=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}});
+      if(!r.ok) throw new Error('Could not access Gist. Check the ID and token.');
+      const data=await r.json();
+      const raw=data.files?.[GIST_FILENAME]?.content;
+      if(raw){
+        const parsed=JSON.parse(raw);
+        if(parsed[LS.done]!==undefined){done=new Set(parsed[LS.done]);localStorage.setItem(LS.done,JSON.stringify(parsed[LS.done]));}
+        if(parsed[LS.log]!==undefined){log=parsed[LS.log];localStorage.setItem(LS.log,JSON.stringify(log));}
+        if(parsed[LS.start]!==undefined){startDate=parsed[LS.start];localStorage.setItem(LS.start,JSON.stringify(startDate));}
+        _lastPullHash=raw;
+      }
+    }
+    setGHCfg({token,gistId});
+    document.getElementById('ghGistIdRow').style.display='block';
+    document.getElementById('ghGistIdVal').textContent=gistId;
+    document.getElementById('ghGistId').value=gistId;
+    msg.className='gh-msg show ok';
+    msg.textContent='✓ Connected! Data is now syncing via GitHub Gist.';
+    setSyncUI('synced','synced');
+    setTimeout(()=>{document.getElementById('modal-gh').classList.remove('show');render();},1400);
+  }catch(e){msg.className='gh-msg show fail';msg.textContent='✗ '+e.message;setSyncUI('error','error');}
+  btn.textContent='Connect & Sync';btn.disabled=false;
+}
+
+function clearGHConfig(){
+  if(!confirm('Remove GitHub sync config? Local data is kept.')) return;
+  localStorage.removeItem(GH_CFG_KEY);
+  setSyncUI('offline','not set up');
+  document.getElementById('modal-gh').classList.remove('show');
+}
+document.getElementById('modal-gh').addEventListener('click',e=>{if(e.target===document.getElementById('modal-gh'))document.getElementById('modal-gh').classList.remove('show');});
+// ─────────────────────────────────────────────────────────
+
+function ls_get(k, def) { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : def; } catch { return def; } }
+function ls_set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); schedulePush(); } catch {} }
+
+let done = new Set(ls_get(LS.done, []));
+let log = ls_get(LS.log, []);
+let startDate = ls_get(LS.start, null);
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function dateKey(d) { return d.toISOString().slice(0, 10); }
+function todayKey() { return dateKey(new Date()); }
+
+function getDailyMap() {
+  const m = {};
+  log.forEach(e => {
+    if (!m[e.date]) m[e.date] = 0;
+    if (e.action === "done") m[e.date]++;
+    else if (e.action === "undo" && m[e.date] > 0) m[e.date]--;
+  });
+  return m;
+}
+
+function getTodayCount() { return getDailyMap()[todayKey()] || 0; }
+
+function getStreak() {
+  const m = getDailyMap();
+  let s = 0;
+  const d = new Date();
+  if ((m[todayKey()] || 0) >= 3) { s = 1; d.setDate(d.getDate() - 1); }
+  else d.setDate(d.getDate() - 1);
+  while ((m[dateKey(d)] || 0) >= 3) { s++; d.setDate(d.getDate() - 1); }
+  return s;
+}
+
+function getElapsed() {
+  if (!startDate) return 0;
+  return Math.max(1, Math.round((new Date() - new Date(startDate)) / 86400000) + 1);
+}
+
+function getAvg() {
+  const el = getElapsed();
+  if (!done.size) return null;
+  return (done.size / el).toFixed(1);
+}
+
+function showToast(msg, type = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + type;
+  clearTimeout(t._to);
+  t._to = setTimeout(() => { t.className = "toast"; }, 2200);
+}
+
+function render() {
+  const total = done.size, rem = TOTAL - total, pct = Math.round(total / TOTAL * 100);
+  const circumference = 2 * Math.PI * 46;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById("ring-fill").style.strokeDasharray = circumference;
+  document.getElementById("ring-fill").style.strokeDashoffset = offset;
+  document.getElementById("ring-pct").textContent = pct + "%";
+  document.getElementById("main-bar").style.width = pct + "%";
+  document.getElementById("bar-done").textContent = total + " sets done";
+  document.getElementById("bar-rem").textContent = rem + " left";
+  document.getElementById("s-done").textContent = total;
+  document.getElementById("s-rem").textContent = rem;
+  document.getElementById("s-days").textContent = Math.ceil(rem / 3);
+  const streak = getStreak();
+  document.getElementById("s-streak").textContent = streak + "d";
+  document.getElementById("s-streak").className = "stat-value " + (streak >= 3 ? "green" : streak >= 1 ? "orange" : "");
+  const avg = getAvg();
+  document.getElementById("s-avg").textContent = avg || "—";
+  document.getElementById("s-elapsed").textContent = getElapsed() + "d";
+
+  const now = new Date();
+  document.getElementById("today-date").textContent =
+    now.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+  const tc = getTodayCount();
+  document.getElementById("tc-num").textContent = Math.min(tc, 3);
+  for (let i = 0; i < 3; i++) {
+    const dot = document.getElementById("td" + i);
+    dot.className = "today-dot" + (i < tc ? (tc >= 3 ? " complete" : " active") : "");
+  }
+  const sb = document.getElementById("streak-badge");
+  if (streak >= 2) { sb.textContent = "🔥 " + streak + " day streak"; sb.style.display = ""; }
+  else sb.style.display = "none";
+
+  PAPERS.forEach(era => {
+    let eraDone = 0;
+    const eTotal = era.papers.reduce((a, p) => a + p.sets, 0);
+    era.papers.forEach(p => {
+      let pd = 0;
+      for (let i = 0; i < p.sets; i++) {
+        const id = p.id + "_" + i;
+        const el = document.getElementById(id);
+        if (el) { const d = done.has(id); el.className = "sb" + (d ? " done" : ""); if (d) pd++; }
+      }
+      eraDone += pd;
+      const pc = document.getElementById("pc_" + p.id);
+      if (pc) pc.textContent = pd + " / " + p.sets;
+    });
+    const ep = document.getElementById("ep_" + era.ek);
+    if (ep) ep.textContent = eraDone + " / " + eTotal;
+    const mf = document.getElementById("mf_" + era.ek);
+    if (mf) mf.style.width = Math.round(eraDone / eTotal * 100) + "%";
+  });
+
+  renderCal();
+  renderLog();
+}
+
+function renderCal() {
+  const grid = document.getElementById("cal-grid");
+  const map = getDailyMap();
+  const today = todayKey();
+  const startMs = startDate ? new Date(startDate).getTime() : Infinity;
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  document.getElementById("cal-month-lbl").textContent = months[calMonth].slice(0,3) + " " + calYear;
+
+  let html = "";
+  ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => { html += `<div class="cal-dow">${d}</div>`; });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const k = `${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const count = map[k] || 0;
+    const isFuture = k > today;
+    const isPast = k < today && new Date(k).getTime() >= startMs;
+    let cls = "cal-cell";
+    if (k === today) cls += " today";
+    else if (isFuture) cls += " future";
+    else if (isPast && count === 0) cls += " miss";
+    if (count === 1) cls += " s1";
+    else if (count === 2) cls += " s2";
+    else if (count >= 3) cls += " s3";
+    const countLbl = count > 0 ? `<div class="cal-sets-lbl">${count}s</div>` : "";
+    html += `<div class="${cls}"><div class="cal-num">${d}</div>${countLbl}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal(); }
+function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal(); }
+
+function renderLog() {
+  const list = document.getElementById("log-list");
+  if (!log.length) { list.innerHTML = '<div class="log-empty">No activity yet — start marking sets done.</div>'; return; }
+  const recent = [...log].reverse().slice(0, 40);
+  list.innerHTML = recent.map(e =>
+    `<div class="log-entry">
+      <div class="log-ts">${e.ts}</div>
+      <div class="log-name">${e.label}</div>
+      <div class="log-tag ${e.action}">${e.action === "done" ? "Done" : "Undone"}</div>
+    </div>`
+  ).join("");
+}
+
+function toggle(id, label) {
+  const isNew = !done.has(id);
+  if (isNew) {
+    done.add(id);
+    if (!startDate) { startDate = todayKey(); ls_set(LS.start, startDate); }
+  } else {
+    done.delete(id);
+  }
+  ls_set(LS.done, [...done]);
+  const now = new Date();
+  const ts = now.toLocaleDateString("en-IN", {day:"numeric",month:"short"}) + " " +
+    now.toLocaleTimeString("en-IN", {hour:"2-digit",minute:"2-digit"});
+  log.push({ ts, date: todayKey(), label, action: isNew ? "done" : "undo" });
+  if (log.length > 300) log = log.slice(-300);
+  ls_set(LS.log, log);
+  showToast(isNew ? "✓ " + label : "Undone: " + label, isNew ? "green" : "");
+  render();
+}
+
+function resetDay() {
+  const tk = todayKey();
+  log = log.filter(e => e.date !== tk);
+  ls_set(LS.log, log);
+  showToast("Today's session log cleared");
+  render();
+}
+
+function clearLog() {
+  log = [];
+  ls_set(LS.log, []);
+  showToast("Session log cleared");
+  renderLog();
+}
+
+function exportData() {
+  const data = { done: [...done], log, startDate, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "dilr_tracker_backup_" + todayKey() + ".json";
+  a.click();
+  showToast("Backup exported", "green");
+}
+
+function importData() {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".json";
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if (d.done) { done = new Set(d.done); ls_set(LS.done, d.done); }
+        if (d.log) { log = d.log; ls_set(LS.log, log); }
+        if (d.startDate) { startDate = d.startDate; ls_set(LS.start, startDate); }
+        render();
+        showToast("Data imported successfully", "green");
+      } catch { showToast("Import failed — invalid file"); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+// BUILD DOM
+const container = document.getElementById("era-container");
+PAPERS.forEach(era => {
+  const eTotal = era.papers.reduce((a, p) => a + p.sets, 0);
+  const eDiv = document.createElement("div");
+  eDiv.className = "era-block";
+  eDiv.innerHTML = `
+    <div class="era-hdr">
+      <div class="era-name">${era.era}</div>
+      <div class="era-prog-badge" id="ep_${era.ek}">0 / ${eTotal}</div>
+    </div>
+    <div class="era-minibar"><div class="era-minibar-fill" id="mf_${era.ek}" style="width:0%"></div></div>
+    <div class="era-body" id="eb_${era.ek}"></div>
+  `;
+  container.appendChild(eDiv);
+  const body = document.getElementById("eb_" + era.ek);
+  era.papers.forEach(p => {
+    const pb = document.createElement("div");
+    pb.className = "paper-row";
+    const meta = document.createElement("div");
+    meta.className = "paper-meta";
+    meta.innerHTML = `<div class="paper-name">${p.name}</div><div class="paper-count" id="pc_${p.id}">0 / ${p.sets}</div>`;
+    const sw = document.createElement("div");
+    sw.className = "paper-sets-wrap";
+    const row = document.createElement("div");
+    row.className = "sets-row";
+    for (let i = 0; i < p.sets; i++) {
+      const id = p.id + "_" + i;
+      const label = p.name + " — Set " + (i + 1);
+      const b = document.createElement("div");
+      b.className = "sb"; b.id = id; b.textContent = "S" + (i + 1);
+      b.onclick = () => toggle(id, label);
+      row.appendChild(b);
+    }
+    sw.appendChild(row);
+    pb.appendChild(meta);
+    pb.appendChild(sw);
+    body.appendChild(pb);
+  });
+});
+
+render();
+
+// Pull from Gist on load
+(async()=>{
+  const cfg=getGHCfg();
+  if(cfg?.token&&cfg?.gistId){
+    setSyncUI('syncing','loading…');
+    const ok=await pullFromGist(cfg);
+    if(ok){
+      done=new Set(ls_get(LS.done,[]));
+      log=ls_get(LS.log,[]);
+      startDate=ls_get(LS.start,null);
+      render();
+    }
+  } else {
+    setSyncUI('offline','not set up');
+  }
+})();
+</body>
+</html>
