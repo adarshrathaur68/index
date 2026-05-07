@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DILR PYQ Tracker — iQuanta CAT</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bg4:#212636;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --orange:#f97316;--orange-dim:#c2580e;
+  --orange-bg:rgba(249,115,22,0.12);--orange-bg2:rgba(249,115,22,0.06);
+  --green:#22c55e;--green-dim:#16a34a;--green-bg:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.1);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+.app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:22px 18px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.logo{padding-bottom:14px;border-bottom:1px solid var(--border)}
+.logo-main{font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.logo-main span{color:var(--orange)}
+.logo-sub{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+
+/* RING */
+.prw{display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0}
+.rc{position:relative;width:110px;height:110px}
+.rsvg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--bg4);stroke-width:8}
+.rfill{fill:none;stroke:var(--orange);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1)}
+.rtext{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rpct{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1}
+.rlbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+.bw{width:100%}
+.bl{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px;font-family:var(--mono)}
+.bb{background:var(--bg4);border-radius:4px;height:5px;overflow:hidden}
+.bf{height:100%;background:var(--orange);border-radius:4px;transition:width 0.5s cubic-bezier(.4,0,.2,1)}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sc{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 11px}
+.sl{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:3px}
+.sv{font-family:var(--mono);font-size:19px;font-weight:700;line-height:1}
+.sv.o{color:var(--orange)}.sv.g{color:var(--green)}.sv.r{color:var(--red)}.sv.a{color:var(--amber)}
+
+/* TODAY */
+.tc{background:var(--orange-bg2);border:1px solid rgba(249,115,22,0.2);border-radius:12px;padding:12px}
+.tch{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.tct{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);font-weight:600}
+.tcd{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.tcd-dots{display:flex;gap:7px;margin-bottom:8px}
+.td{flex:1;height:5px;border-radius:3px;background:var(--bg4);transition:background 0.3s}
+.td.active{background:var(--orange)}.td.complete{background:var(--green)}
+.tcr{display:flex;justify-content:space-between;align-items:center}
+.tcn{font-family:var(--mono);font-size:13px;font-weight:700}
+.tcn .num{color:var(--orange)}
+.stbadge{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--amber-bg);color:var(--amber);font-weight:600;border:1px solid rgba(245,158,11,0.2)}
+
+.rbtn{width:100%;padding:7px;background:transparent;border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-family:var(--sans);font-size:11px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.08em}
+.rbtn:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.dr{display:flex;gap:7px;padding-top:10px;border-top:1px solid var(--border);margin-top:auto}
+.db{flex:1;padding:7px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text3);font-family:var(--sans);font-size:10px;cursor:pointer;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;transition:all 0.2s}
+.db:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-bg)}
+
+/* SYNC PILL */
+.spill{display:inline-flex;align-items:center;gap:6px;font-size:10px;padding:7px 12px;border-radius:20px;border:1px solid var(--border2);color:var(--text3);cursor:pointer;background:var(--bg3);transition:all 0.2s;font-family:var(--mono);width:100%;justify-content:center}
+.spill:hover{border-color:var(--orange);color:var(--orange)}
+.spill.synced{color:var(--green);border-color:rgba(34,197,94,0.4);background:var(--green-bg)}
+.spill.syncing{color:var(--amber);border-color:rgba(245,158,11,0.3);background:var(--amber-bg)}
+.spill.error{color:var(--red);border-color:rgba(239,68,68,0.3);background:var(--red-bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.si{font-size:12px;display:inline-block}
+.si.spin{animation:spin 1s linear infinite}
+
+/* MAIN */
+.main{padding:24px 28px;display:flex;flex-direction:column;gap:22px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.st{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);font-weight:600}
+.sa{font-size:11px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:var(--sans);text-transform:uppercase;letter-spacing:0.08em;padding:3px 8px;border-radius:6px;border:1px solid var(--border);transition:all 0.2s}
+.sa:hover{color:var(--text);border-color:var(--border2)}
+
+/* MOTIVATION */
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 15px;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc.danger::before{background:var(--red)}.mc.warn::before{background:var(--amber)}
+.mc.good::before{background:var(--green)}.mc.info::before{background:var(--blue)}.mc.orange::before{background:var(--orange)}
+.mci{font-size:18px;margin-bottom:5px;line-height:1}
+.mcv{font-family:var(--mono);font-size:21px;font-weight:700;line-height:1;margin-bottom:3px}
+.mcv.r{color:var(--red)}.mcv.a{color:var(--amber)}.mcv.g{color:var(--green)}.mcv.o{color:var(--orange)}.mcv.b{color:var(--blue)}
+.mcl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+.mcs{font-size:10px;color:var(--text2);margin-top:4px;line-height:1.4}
+
+.blw{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px}
+.blt{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;margin-bottom:11px}
+.blt span{color:var(--text2);font-size:10px;font-weight:400;letter-spacing:0;text-transform:none}
+.bltrack{position:relative;height:26px;background:var(--bg4);border-radius:7px;overflow:hidden;margin-bottom:7px}
+.blexp{position:absolute;top:0;left:0;height:100%;background:rgba(59,130,246,0.2);border-right:2px solid var(--blue);transition:width 0.5s}
+.blact{position:absolute;top:0;left:0;height:100%;background:var(--orange);border-radius:7px 0 0 7px;transition:width 0.5s}
+.bllbls{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3)}
+.blverd{margin-top:9px;padding:10px 13px;border-radius:8px;font-size:12px;line-height:1.6}
+.blverd.behind{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#fca5a5}
+.blverd.ahead{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#86efac}
+.blverd.ok{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#fcd34d}
+.blverd.neutral{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+
+/* CALENDAR */
+.cnav{display:flex;align-items:center;gap:8px}
+.cnb{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.cnb:hover{border-color:var(--orange);color:var(--orange)}
+.cml{font-family:var(--mono);font-size:12px;color:var(--text);min-width:90px;text-align:center}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cdow{font-size:9px;text-align:center;color:var(--text3);padding:3px 0;text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+.cc{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--bg2)}
+.cc.empty{background:transparent;border-color:transparent}
+.cc.today{border-color:var(--orange)}
+.cc.today .cn{color:var(--orange)}
+.cc.future{opacity:0.2}
+.cc.miss{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.25)}
+.cc.miss .cn{color:var(--red)}
+.cc.s1{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2)}.cc.s1 .cn{color:var(--green)}
+.cc.s2{background:rgba(34,197,94,0.18);border-color:rgba(34,197,94,0.35)}.cc.s2 .cn{color:var(--green)}
+.cc.s3{background:rgba(34,197,94,0.32);border-color:rgba(34,197,94,0.55)}.cc.s3 .cn{color:#86efac;font-weight:700}
+.cn{font-family:var(--mono);font-size:11px;line-height:1}
+.cs{font-size:7px;color:var(--text3);margin-top:1px}
+.cc.s1 .cs,.cc.s2 .cs,.cc.s3 .cs{color:rgba(134,239,172,0.6)}
+.clg{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3)}
+.lsq{width:10px;height:10px;border-radius:3px}
+
+/* LOG */
+.ll{display:flex;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto}
+.le{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:10px;padding:6px 11px;background:var(--bg2);border-radius:7px;border:1px solid var(--border);font-size:11px;animation:fi 0.2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.lts{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.ln{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ltag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
+.ltag.done{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.ltag.undo{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.le-empty{text-align:center;color:var(--text3);font-size:12px;padding:20px}
+
+/* ERA */
+.era-block{border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.era-hdr{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.era-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2)}
+.era-pb{font-family:var(--mono);font-size:11px;color:var(--orange);background:var(--orange-bg);padding:2px 8px;border-radius:20px;border:1px solid rgba(249,115,22,0.2)}
+.era-mb{height:2px;background:var(--bg4);overflow:hidden}
+.era-mbf{height:100%;background:var(--orange);transition:width 0.4s}
+.era-body{padding:12px 15px;display:flex;flex-direction:column;gap:10px}
+.pr{display:flex;align-items:flex-start;gap:12px}
+.pm{min-width:155px}
+.pn{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.pct{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.psw{flex:1}
+.srow{display:flex;flex-wrap:wrap;gap:3px}
+.sb{width:33px;height:33px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--text3);transition:all 0.13s;user-select:none;font-weight:700}
+.sb:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-bg);transform:scale(1.08)}
+.sb.done{background:var(--green-bg);border-color:rgba(34,197,94,0.4);color:var(--green)}
+.sb.done:hover{background:var(--red-bg);border-color:rgba(239,68,68,0.4);color:var(--red)}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--text);transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(.4,0,.2,1);z-index:9999;pointer-events:none;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.green{border-color:rgba(34,197,94,0.4)}
+.toast.red{border-color:rgba(239,68,68,0.4)}
+
+/* GITHUB MODAL */
+.gho{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.gho.show{display:flex}
+.ghbox{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:520px;margin:16px;max-height:92vh;overflow-y:auto}
+.ghtitle{font-size:18px;font-weight:700;color:var(--orange);margin-bottom:3px}
+.ghsub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:20px;letter-spacing:0.05em;text-transform:uppercase}
+.ghstep{display:flex;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:9px}
+.ghsn{font-size:20px;font-weight:800;color:var(--orange);min-width:22px;line-height:1.2}
+.ghsb{font-size:12px;color:var(--text2);line-height:1.8}
+.ghsb a{color:var(--green);text-decoration:none}
+.ghsb a:hover{text-decoration:underline}
+.ghcode{font-family:var(--mono);font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px;color:var(--text)}
+.ghsep{height:1px;background:var(--border);margin:18px 0}
+.ghlbl{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px;display:block;letter-spacing:0.08em;text-transform:uppercase}
+/* TOKEN INPUT with show/hide */
+.ghiw{position:relative;margin-bottom:10px}
+.ghin{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:10px 42px 10px 12px;font-size:13px;font-family:var(--mono);outline:none;transition:border-color 0.2s;letter-spacing:0.03em}
+.ghin:focus{border-color:var(--orange)}
+.ghin.plain{font-family:var(--sans);letter-spacing:normal;font-size:13px}
+.gheye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px 6px;line-height:1;transition:color 0.2s}
+.gheye:hover{color:var(--text)}
+.ghhelp{font-size:10px;color:var(--text3);margin:-4px 0 12px;font-family:var(--mono);padding:0 2px}
+.ghidr{font-family:var(--mono);font-size:10px;color:var(--text3);margin:-2px 0 14px;padding:9px 12px;background:var(--bg3);border-radius:6px;border:1px solid var(--border);display:none;align-items:center;gap:8px;flex-wrap:wrap}
+.ghidv{color:var(--amber);font-weight:700;cursor:pointer;word-break:break-all;flex:1}
+.ghcopy{font-size:10px;padding:3px 9px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;font-family:var(--mono);white-space:nowrap}
+.ghcopy:hover{border-color:var(--orange);color:var(--orange)}
+.ghmsg{font-family:var(--mono);font-size:11px;padding:9px 13px;border-radius:7px;margin-top:8px;display:none;line-height:1.6}
+.ghmsg.show{display:block}
+.ghmsg.ok{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:#86efac}
+.ghmsg.fail{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
+.ghmsg.info{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#fcd34d}
+.ghact{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap;align-items:center}
+.ghbtn{font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--border2);font-family:var(--sans);font-weight:600;transition:all 0.2s}
+.ghbtn.pri{background:var(--orange);color:#fff;border-color:var(--orange)}
+.ghbtn.pri:hover{background:var(--orange-dim)}
+.ghbtn.pri:disabled{opacity:0.5;cursor:not-allowed}
+.ghbtn.ghost{background:transparent;color:var(--text2)}
+.ghbtn.ghost:hover{border-color:var(--text2)}
+.ghbtn.danger{background:transparent;color:var(--red);border-color:rgba(239,68,68,0.3);margin-right:auto}
+.ghbtn.danger:hover{background:var(--red-bg)}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}.sidebar{position:static;height:auto}
+  .pr{flex-direction:column;gap:5px}.pm{min-width:unset}.mg{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.mg{grid-template-columns:1fr}.main{padding:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-main">DILR<span>.</span>track</div>
+    <div class="logo-sub">iQuanta CAT PYQ · 2000–2025</div>
+  </div>
+  <div class="prw">
+    <div class="rc">
+      <svg class="rsvg" width="110" height="110" viewBox="0 0 110 110">
+        <circle class="rbg" cx="55" cy="55" r="46"/>
+        <circle class="rfill" id="ring-fill" cx="55" cy="55" r="46" stroke-dasharray="289" stroke-dashoffset="289"/>
+      </svg>
+      <div class="rtext"><div class="rpct" id="ring-pct">0%</div><div class="rlbl">complete</div></div>
+    </div>
+    <div class="bw">
+      <div class="bl"><span id="bar-done">0 done</span><span id="bar-rem">162 left</span></div>
+      <div class="bb"><div class="bf" id="main-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">Done</div><div class="sv o" id="s-done">0</div></div>
+    <div class="sc"><div class="sl">Remaining</div><div class="sv" id="s-rem">162</div></div>
+    <div class="sc"><div class="sl">Days left @3/d</div><div class="sv" id="s-days">54</div></div>
+    <div class="sc"><div class="sl">Streak</div><div class="sv g" id="s-streak">0d</div></div>
+    <div class="sc"><div class="sl">Avg / day</div><div class="sv" id="s-avg">—</div></div>
+    <div class="sc"><div class="sl">Active days</div><div class="sv" id="s-elapsed">0</div></div>
+  </div>
+  <div class="tc">
+    <div class="tch"><div class="tct">Today</div><div class="tcd" id="today-date"></div></div>
+    <div class="tcd-dots"><div class="td" id="td0"></div><div class="td" id="td1"></div><div class="td" id="td2"></div></div>
+    <div class="tcr">
+      <div class="tcn"><span class="num" id="tc-num">0</span> / 3 sets</div>
+      <div class="stbadge" id="streak-badge" style="display:none"></div>
+    </div>
+  </div>
+  <button class="rbtn" onclick="resetDay()">↺ Reset today's count</button>
+  <div class="dr">
+    <button class="db" onclick="exportData()">⬇ Export</button>
+    <button class="db" onclick="importData()">⬆ Import</button>
+  </div>
+  <div class="spill offline" id="syncPill" onclick="openGHConfig()" title="Configure GitHub Gist sync">
+    <span class="si" id="syncIcon">⬡</span>
+    <span id="syncLabel">github: not set up</span>
+  </div>
+</aside>
+
+<!-- GITHUB MODAL -->
+<div class="gho" id="modal-gh">
+  <div class="ghbox">
+    <div class="ghtitle">GitHub Gist Sync</div>
+    <div class="ghsub">Private · Cross-device · One-time setup</div>
+    <div class="ghstep">
+      <div class="ghsn">1</div>
+      <div class="ghsb">
+        Go to <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a><br>
+        Note: <span class="ghcode">DILR Tracker</span> &nbsp;·&nbsp; Expiration: <span class="ghcode">No expiration</span><br>
+        Scopes: tick <b>only</b> <span class="ghcode">gist</span> → <span class="ghcode">Generate token</span> → copy immediately.
+      </div>
+    </div>
+    <div class="ghstep">
+      <div class="ghsn">2</div>
+      <div class="ghsb">
+        <b>First device:</b> paste token, leave Gist ID blank → Connect. Gist is auto-created, ID shown below.<br>
+        <b>Phone / laptop:</b> paste same token + the Gist ID from first device → Connect to pull data.
+      </div>
+    </div>
+    <div class="ghsep"></div>
+    <label class="ghlbl">GitHub Personal Access Token (Classic)</label>
+    <div class="ghiw">
+      <input class="ghin" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="new-password" spellcheck="false">
+      <button class="gheye" type="button" id="ghEye" onclick="toggleTok()">👁</button>
+    </div>
+    <div class="ghhelp">Token saved in this browser only. Sent only to api.github.com.</div>
+    <label class="ghlbl">Gist ID <span style="text-transform:none;letter-spacing:0;color:var(--text3);font-weight:400">(blank = auto-create on first device)</span></label>
+    <div class="ghiw">
+      <input class="ghin plain" id="ghGistId" placeholder="e.g. a1b2c3d4e5f6a1b2c3d4" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="ghidr" id="ghIdRow">
+      <span>Your Gist ID:</span>
+      <span class="ghidv" id="ghIdVal">—</span>
+      <button class="ghcopy" onclick="copyGistId()">📋 Copy ID</button>
+    </div>
+    <div class="ghmsg" id="ghMsg"></div>
+    <div class="ghact">
+      <button class="ghbtn danger" onclick="clearGHCfg()">Clear Config</button>
+      <button class="ghbtn ghost" onclick="closeModal()">Cancel</button>
+      <button class="ghbtn pri" id="ghBtn" onclick="connectGH()">Connect &amp; Sync</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- MISSION CONTROL -->
+  <section>
+    <div class="sh">
+      <span class="st">Mission control</span>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)" id="exam-cd"></span>
+    </div>
+    <div class="mg" id="motiv-grid"></div>
+    <div class="blw">
+      <div class="blt">Pace vs Target &nbsp;<span id="bl-title-sub"></span></div>
+      <div class="bltrack">
+        <div class="blexp" id="blexp" style="width:0%"></div>
+        <div class="blact" id="blact" style="width:0%"></div>
+      </div>
+      <div class="bllbls"><span id="bll-act">You: 0</span><span id="bll-exp">Expected: 0</span><span>Total: 162</span></div>
+      <div class="blverd neutral" id="blverd"></div>
+    </div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section>
+    <div class="sh">
+      <span class="st">Activity calendar</span>
+      <div class="cnav">
+        <button class="cnb" onclick="calPrev()">&#8592;</button>
+        <span class="cml" id="cal-month"></span>
+        <button class="cnb" onclick="calNext()">&#8594;</button>
+      </div>
+    </div>
+    <div class="cgrid" id="cal-grid"></div>
+    <div class="clg">
+      <div class="leg"><div class="lsq" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3)"></div>Missed</div>
+      <div class="leg"><div class="lsq" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2)"></div>1 set</div>
+      <div class="leg"><div class="lsq" style="background:rgba(34,197,94,0.18);border:1px solid rgba(34,197,94,0.35)"></div>2 sets</div>
+      <div class="leg"><div class="lsq" style="background:rgba(34,197,94,0.32);border:1px solid rgba(34,197,94,0.55)"></div>3+ (target)</div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section>
+    <div class="sh"><span class="st">Session log</span><button class="sa" onclick="clearLog()">Clear</button></div>
+    <div class="ll" id="log-list"></div>
+  </section>
+
+  <!-- TRACKER -->
+  <section>
+    <div class="sh">
+      <span class="st">Sets tracker — 162 sets</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">click = done · again = undo</span>
+    </div>
+    <div id="era-container" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const PAPERS=[
+  {era:"Modern — 2024–2025",ek:"e2425",papers:[
+    {name:"CAT 2025 Slot 1",id:"25s1",sets:4},{name:"CAT 2025 Slot 2",id:"25s2",sets:4},{name:"CAT 2025 Slot 3",id:"25s3",sets:4},
+    {name:"CAT 2024 Slot 1",id:"24s1",sets:4},{name:"CAT 2024 Slot 2",id:"24s2",sets:4},{name:"CAT 2024 Slot 3",id:"24s3",sets:4},
+  ]},
+  {era:"Recent — 2021–2023",ek:"e2123",papers:[
+    {name:"CAT 2023 Slot 1",id:"23s1",sets:4},{name:"CAT 2023 Slot 2",id:"23s2",sets:4},{name:"CAT 2023 Slot 3",id:"23s3",sets:4},
+    {name:"CAT 2022 Slot 1",id:"22s1",sets:4},{name:"CAT 2022 Slot 2",id:"22s2",sets:4},{name:"CAT 2022 Slot 3",id:"22s3",sets:4},
+    {name:"CAT 2021 Slot 1",id:"21s1",sets:4},{name:"CAT 2021 Slot 2",id:"21s2",sets:4},{name:"CAT 2021 Slot 3",id:"21s3",sets:4},
+  ]},
+  {era:"2020",ek:"e2020",papers:[
+    {name:"CAT 2020 Slot 1",id:"20s1",sets:5},{name:"CAT 2020 Slot 2",id:"20s2",sets:5},{name:"CAT 2020 Slot 3",id:"20s3",sets:5},
+  ]},
+  {era:"Standard — 2017–2019",ek:"e1719",papers:[
+    {name:"CAT 2019 Slot 1",id:"19s1",sets:6},{name:"CAT 2019 Slot 2",id:"19s2",sets:6},
+    {name:"CAT 2018 Slot 1",id:"18s1",sets:6},{name:"CAT 2018 Slot 2",id:"18s2",sets:6},
+    {name:"CAT 2017 Slot 1",id:"17s1",sets:6},{name:"CAT 2017 Slot 2",id:"17s2",sets:6},
+  ]},
+  {era:"Classic — 2014–2016",ek:"e1416",papers:[
+    {name:"CAT 2016",id:"2016",sets:6},{name:"CAT 2015",id:"2015",sets:6},{name:"CAT 2014",id:"2014",sets:6},
+  ]},
+  {era:"Classic — 2011–2013",ek:"e1113",papers:[
+    {name:"CAT 2013",id:"2013",sets:3},{name:"CAT 2012",id:"2012",sets:3},{name:"CAT 2011",id:"2011",sets:3},
+  ]},
+  {era:"Vintage — 2000–2009",ek:"e0009",papers:[
+    {name:"CAT 2009",id:"2009",sets:3},{name:"CAT 2008",id:"2008",sets:3},
+    {name:"CAT 2003 Revised",id:"2003r",sets:3},{name:"CAT 2003 Leaked",id:"2003l",sets:3},
+    {name:"CAT 2002",id:"2002",sets:3},{name:"CAT 2001",id:"2001",sets:3},{name:"CAT 2000",id:"2000",sets:3},
+  ]},
+];
+const TOTAL=162;
+const CAT_DATE=new Date('2026-11-29');
+const LS={done:'dilr_done',log:'dilr_log',start:'dilr_start'};
+const GH_KEY='dilr_gh_cfg';
+const GH_FILE='dilr_tracker_data.json';
+
+// ── STORAGE ───────────────────────────────────────────────
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d}catch{return d}}
+function lsRaw(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+function lsSet(k,v){lsRaw(k,v);schedulePush()}
+
+let done=new Set(lsGet(LS.done,[]));
+let log=lsGet(LS.log,[]);
+let startDate=lsGet(LS.start,null);
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+
+// ── DATE UTILS ────────────────────────────────────────────
+const dk=d=>d.toISOString().slice(0,10);
+const tdk=()=>dk(new Date());
+
+function getDailyMap(){
+  const m={};
+  log.forEach(e=>{
+    if(!m[e.date])m[e.date]=0;
+    if(e.action==='done')m[e.date]++;
+    else if(e.action==='undo'&&m[e.date]>0)m[e.date]--;
+  });
+  return m;
+}
+const getTodayCount=()=>getDailyMap()[tdk()]||0;
+
+function getStreak(){
+  const m=getDailyMap();let s=0;const d=new Date();
+  if((m[tdk()]||0)>=3){s=1;d.setDate(d.getDate()-1)}else d.setDate(d.getDate()-1);
+  while((m[dk(d)]||0)>=3){s++;d.setDate(d.getDate()-1)}
+  return s;
+}
+function getElapsed(){
+  if(!startDate)return 0;
+  return Math.max(1,Math.round((new Date()-new Date(startDate))/86400000)+1);
+}
+function getMissedDays(){
+  if(!startDate)return 0;
+  const m=getDailyMap(),today=tdk();let missed=0;
+  const d=new Date(startDate);
+  while(dk(d)<today){if((m[dk(d)]||0)<3)missed++;d.setDate(d.getDate()+1)}
+  return missed;
+}
+function getBacklog(){
+  const elapsed=getElapsed(),expected=Math.min(elapsed*3,TOTAL),actual=done.size;
+  return{expected,actual,behind:Math.max(0,expected-actual),ahead:Math.max(0,actual-expected)};
+}
+function getDaysToExam(){const n=new Date();n.setHours(0,0,0,0);return Math.max(0,Math.round((CAT_DATE-n)/86400000))}
+function getFinishDate(){
+  const d=new Date();d.setDate(d.getDate()+Math.ceil((TOTAL-done.size)/3));
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+(type||'');
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.className='toast'},2600);
+}
+
+// ── GITHUB SYNC (FIXED) ───────────────────────────────────
+function getGHCfg(){try{const v=localStorage.getItem(GH_KEY);return v?JSON.parse(v):null}catch{return null}}
+function setGHCfg(v){localStorage.setItem(GH_KEY,JSON.stringify(v))}
+
+let _pushT=null,_lastHash=null;
+
+function setSyncUI(state,lbl){
+  const pill=document.getElementById('syncPill');
+  const icon=document.getElementById('syncIcon');
+  const label=document.getElementById('syncLabel');
+  if(!pill)return;
+  const icons={offline:'⬡',syncing:'↻',synced:'✓',error:'✗'};
+  pill.className='spill '+state;
+  icon.textContent=icons[state]||'⬡';
+  icon.className='si'+(state==='syncing'?' spin':'');
+  label.textContent='github: '+(lbl||state);
+}
+
+function schedulePush(){
+  if(!getGHCfg()?.token)return;
+  clearTimeout(_pushT);
+  setSyncUI('syncing','saving…');
+  _pushT=setTimeout(pushToGist,1800);
+}
+
+async function pushToGist(){
+  const cfg=getGHCfg();
+  if(!cfg?.token||!cfg?.gistId){setSyncUI('offline','not set up');return}
+  const payload={[LS.done]:[...done],[LS.log]:log,[LS.start]:startDate};
+  const content=JSON.stringify(payload,null,2);
+  if(content===_lastHash){setSyncUI('synced','up to date');return}
+  try{
+    const r=await fetch(`https://api.github.com/gists/${cfg.gistId}`,{
+      method:'PATCH',
+      headers:{Authorization:`token ${cfg.token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({files:{[GH_FILE]:{content}}})
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    _lastHash=content;setSyncUI('synced','synced ✓');
+  }catch(e){setSyncUI('error','save failed — retry');console.error(e)}
+}
+
+async function pullFromGist(cfg){
+  if(!cfg?.token||!cfg?.gistId)return false;
+  setSyncUI('syncing','pulling…');
+  try{
+    const r=await fetch(`https://api.github.com/gists/${cfg.gistId}`,{
+      headers:{Authorization:`token ${cfg.token}`,Accept:'application/vnd.github.v3+json'}
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const raw=data.files?.[GH_FILE]?.content;
+    if(!raw){setSyncUI('synced','ready');return false}
+    const p=JSON.parse(raw);
+    if(p[LS.done]!==undefined){done=new Set(p[LS.done]);lsRaw(LS.done,p[LS.done])}
+    if(p[LS.log]!==undefined){log=p[LS.log];lsRaw(LS.log,log)}
+    if(p[LS.start]!==undefined){startDate=p[LS.start];lsRaw(LS.start,startDate)}
+    _lastHash=raw;setSyncUI('synced','synced ✓');return true;
+  }catch(e){
+    setSyncUI('error','pull failed');console.error(e);return false;
+  }
+}
+
+async function createGist(token){
+  const payload={[LS.done]:[...done],[LS.log]:log,[LS.start]:startDate};
+  const r=await fetch('https://api.github.com/gists',{
+    method:'POST',
+    headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+    body:JSON.stringify({description:'DILR Tracker — CAT PYQ Progress',public:false,files:{[GH_FILE]:{content:JSON.stringify(payload,null,2)}}})
+  });
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||'HTTP '+r.status)}
+  return(await r.json()).id;
+}
+
+function toggleTok(){
+  const i=document.getElementById('ghToken'),e=document.getElementById('ghEye');
+  i.type=i.type==='password'?'text':'password';
+  e.textContent=i.type==='password'?'👁':'🙈';
+}
+
+function openGHConfig(){
+  const cfg=getGHCfg();
+  const ti=document.getElementById('ghToken'),gi=document.getElementById('ghGistId');
+  // reset eye
+  ti.type='password';document.getElementById('ghEye').textContent='👁';
+  ti.value=cfg?.token||'';gi.value=cfg?.gistId||'';
+  const msg=document.getElementById('ghMsg');msg.className='ghmsg';msg.textContent='';
+  const idr=document.getElementById('ghIdRow');
+  if(cfg?.gistId){idr.style.display='flex';document.getElementById('ghIdVal').textContent=cfg.gistId}
+  else idr.style.display='none';
+  document.getElementById('modal-gh').classList.add('show');
+  if(!ti.value)setTimeout(()=>ti.focus(),120);
+}
+
+function closeModal(){document.getElementById('modal-gh').classList.remove('show')}
+
+function copyGistId(){
+  const id=getGHCfg()?.gistId;if(!id)return;
+  const copy=t=>{
+    navigator.clipboard.writeText(t).then(()=>showToast('Gist ID copied!','green')).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      showToast('Gist ID copied!','green');
+    });
+  };
+  copy(id);
+}
+
+async function connectGH(){
+  const token=document.getElementById('ghToken').value.trim();
+  const gistIdInput=document.getElementById('ghGistId').value.trim();
+  const msg=document.getElementById('ghMsg');
+  const btn=document.getElementById('ghBtn');
+
+  // ── Validate token ──
+  if(!token){
+    msg.className='ghmsg show fail';
+    msg.textContent='⚠ Token is required. Generate one at GitHub → Settings → Developer settings → Personal access tokens → Classic.';return;
+  }
+  if(!token.startsWith('ghp_')&&!token.startsWith('github_pat_')){
+    msg.className='ghmsg show fail';
+    msg.textContent='⚠ Token should start with ghp_ (or github_pat_ for fine-grained). Check you copied the full token.';return;
+  }
+
+  btn.disabled=true;btn.textContent='Connecting…';
+  msg.className='ghmsg show info';msg.textContent='🔄 Verifying token with GitHub…';
+
+  try{
+    // ── Verify token via /user ──
+    const ur=await fetch('https://api.github.com/user',{
+      headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}
+    });
+    if(ur.status===401)throw new Error('Token invalid or expired. Re-generate at github.com/settings/tokens.');
+    if(!ur.ok)throw new Error('GitHub returned '+ur.status+'. Check your internet connection.');
+    const user=await ur.json();
+    const hasGist=(ur.headers.get('x-oauth-scopes')||'').includes('gist');
+    // Note: scope check is best-effort; fine-grained tokens don't expose scopes header
+    msg.textContent=`✓ Authenticated as ${user.login}. ${gistIdInput?'Connecting to Gist…':'Creating private Gist…'}`;
+
+    let gistId=gistIdInput;
+    if(!gistId){
+      // ── Create new gist ──
+      msg.textContent='🔄 Creating your private Gist…';
+      gistId=await createGist(token);
+      msg.textContent='✓ Gist created! ID: '+gistId;
+    } else {
+      // ── Connect + pull from existing gist ──
+      msg.textContent='🔄 Pulling data from Gist…';
+      const gr=await fetch(`https://api.github.com/gists/${gistId}`,{
+        headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'}
+      });
+      if(gr.status===404)throw new Error('Gist ID not found. Copy the exact ID shown on your first device.');
+      if(gr.status===403)throw new Error('Access denied. Make sure the token has the "gist" scope.');
+      if(!gr.ok)throw new Error('Cannot reach Gist: HTTP '+gr.status);
+      const gd=await gr.json();
+      const raw=gd.files?.[GH_FILE]?.content;
+      if(raw){
+        const p=JSON.parse(raw);
+        if(p[LS.done]){done=new Set(p[LS.done]);lsRaw(LS.done,p[LS.done])}
+        if(p[LS.log]){log=p[LS.log];lsRaw(LS.log,log)}
+        if(p[LS.start]){startDate=p[LS.start];lsRaw(LS.start,startDate)}
+        _lastHash=raw;
+      }
+    }
+
+    setGHCfg({token,gistId});
+    document.getElementById('ghIdRow').style.display='flex';
+    document.getElementById('ghIdVal').textContent=gistId;
+    document.getElementById('ghGistId').value=gistId;
+    msg.className='ghmsg show ok';
+    msg.textContent='✓ Connected! Data syncs automatically. Copy the Gist ID above to link other devices.';
+    setSyncUI('synced','connected');
+    render();
+    setTimeout(closeModal,2600);
+  }catch(e){
+    msg.className='ghmsg show fail';
+    msg.textContent='✗ '+e.message;
+    setSyncUI('error','error');
+  }
+  btn.disabled=false;btn.textContent='Connect & Sync';
+}
+
+function clearGHCfg(){
+  if(!confirm('Remove GitHub sync from this device?\nLocal data is kept.'))return;
+  localStorage.removeItem(GH_KEY);
+  setSyncUI('offline','not set up');
+  closeModal();showToast('Sync config cleared');
+}
+
+document.getElementById('modal-gh').addEventListener('click',e=>{if(e.target===document.getElementById('modal-gh'))closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+// ── RENDER ────────────────────────────────────────────────
+function render(){
+  const total=done.size,rem=TOTAL-total,pct=Math.round(total/TOTAL*100);
+  const circ=2*Math.PI*46,off=circ-(pct/100)*circ;
+  document.getElementById('ring-fill').style.strokeDasharray=circ;
+  document.getElementById('ring-fill').style.strokeDashoffset=off;
+  document.getElementById('ring-pct').textContent=pct+'%';
+  document.getElementById('main-bar').style.width=pct+'%';
+  document.getElementById('bar-done').textContent=total+' done';
+  document.getElementById('bar-rem').textContent=rem+' left';
+  document.getElementById('s-done').textContent=total;
+  document.getElementById('s-rem').textContent=rem;
+  document.getElementById('s-days').textContent=Math.ceil(rem/3);
+  const streak=getStreak();
+  const sel=document.getElementById('s-streak');
+  sel.textContent=streak+'d';sel.className='sv '+(streak>=7?'g':streak>=3?'g':streak>=1?'a':'');
+  const avg=done.size?(done.size/Math.max(1,getElapsed())).toFixed(1):'—';
+  document.getElementById('s-avg').textContent=avg;
+  document.getElementById('s-elapsed').textContent=getElapsed()+'d';
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  const tc=getTodayCount();
+  document.getElementById('tc-num').textContent=Math.min(tc,3);
+  for(let i=0;i<3;i++)document.getElementById('td'+i).className='td'+(i<tc?(tc>=3?' complete':' active'):'');
+  const sb=document.getElementById('streak-badge');
+  if(streak>=2){sb.textContent='🔥 '+streak+'d';sb.style.display=''}else sb.style.display='none';
+  document.getElementById('exam-cd').textContent='CAT 2026: '+getDaysToExam()+'d away';
+
+  // Era blocks
+  PAPERS.forEach(era=>{
+    let ed=0;const et=era.papers.reduce((a,p)=>a+p.sets,0);
+    era.papers.forEach(p=>{
+      let pd=0;
+      for(let i=0;i<p.sets;i++){const id=p.id+'_'+i,el=document.getElementById(id);if(el){const d=done.has(id);el.className='sb'+(d?' done':'');if(d)pd++;}}
+      ed+=pd;const pc=document.getElementById('pc_'+p.id);if(pc)pc.textContent=pd+' / '+p.sets;
+    });
+    const ep=document.getElementById('ep_'+era.ek);if(ep)ep.textContent=ed+' / '+et;
+    const mf=document.getElementById('mf_'+era.ek);if(mf)mf.style.width=Math.round(ed/et*100)+'%';
+  });
+
+  renderMotiv();renderCal();renderLog();
+}
+
+function renderMotiv(){
+  const bl=getBacklog(),streak=getStreak(),elapsed=getElapsed();
+  const avg=done.size?(done.size/Math.max(1,elapsed)):0;
+  const missed=getMissedDays(),dte=getDaysToExam(),rem=TOTAL-done.size;
+  const needPerDay=dte>0?Math.ceil(rem/dte):rem;
+
+  // ── Backlog bar ──
+  const bpct=Math.round(bl.expected/TOTAL*100),apct=Math.round(done.size/TOTAL*100);
+  document.getElementById('blexp').style.width=bpct+'%';
+  document.getElementById('blact').style.width=apct+'%';
+  document.getElementById('bll-act').textContent='You: '+done.size;
+  document.getElementById('bll-exp').textContent='Expected: '+bl.expected;
+  const verd=document.getElementById('blverd');
+  if(elapsed===0){
+    verd.className='blverd neutral';
+    verd.textContent="Start marking sets done to begin pace tracking.";
+  } else if(bl.behind>0){
+    const catchDays=Math.ceil(bl.behind/3);
+    verd.className='blverd behind';
+    verd.innerHTML=`⚠ <b>${bl.behind} set${bl.behind>1?'s':''} behind</b> target pace — that's a <b>${catchDays}-day backlog</b>. `
+      +`To finish before CAT 2026 you need <b>${needPerDay}/day</b> from today. `
+      +(bl.behind>=9?` At current pace you'll miss <b>${Math.round(bl.behind/3*7)} weeks</b> of planned coverage.`:'');
+  } else if(bl.ahead>0){
+    verd.className='blverd ahead';
+    verd.innerHTML=`✓ <b>${bl.ahead} set${bl.ahead>1?'s':''} ahead</b> — excellent! On track to finish <b>${getFinishDate()}</b> with buffer to spare.`;
+  } else {
+    verd.className='blverd ok';
+    verd.innerHTML=`Exactly on pace. Keep 3/day → done in <b>${Math.ceil(rem/3)} days</b>.`;
+  }
+
+  // ── Motivation cards ──
+  const effAvg=+avg;
+  const cards=[
+    {icon:'📉',
+     value:elapsed===0?'—':(bl.behind>0?'-'+bl.behind:'+'+bl.ahead),
+     vcls:elapsed===0?'':(bl.behind>0?'r':bl.ahead>0?'g':'a'),
+     label:'vs target pace',
+     sub:elapsed===0?'Not started':(bl.behind>0?`${bl.behind} sets to catch up`:`${bl.ahead} sets buffer`),
+     card:elapsed===0?'info':(bl.behind>0?'danger':bl.ahead>0?'good':'warn')},
+    {icon:'📅',
+     value:missed+'d',
+     vcls:missed===0?'g':missed<=2?'a':'r',
+     label:'Missed days',
+     sub:missed===0?'Perfect so far!':`${missed} day${missed>1?'s':''} below 3 sets`,
+     card:missed===0?'good':missed<=2?'warn':'danger'},
+    {icon:'📊',
+     value:effAvg?effAvg.toFixed(1):'—',
+     vcls:effAvg>=3?'g':effAvg>=2?'a':'r',
+     label:'Avg sets / day',
+     sub:effAvg>=3?'On target':effAvg>0?`Need +${(3-effAvg).toFixed(1)}/day`:'No data yet',
+     card:effAvg>=3?'good':effAvg>=2?'warn':'danger'},
+    {icon:'⏰',
+     value:dte+'d',
+     vcls:dte>60?'g':dte>30?'a':'r',
+     label:'Days to CAT 2026',
+     sub:rem>0?`Need ${needPerDay}/day to finish`:'All sets done! 🎉',
+     card:dte>60?'good':dte>30?'warn':'danger'},
+    {icon:'🏁',
+     value:rem>0?getFinishDate():'Done!',
+     vcls:'o',
+     label:'Finish date @3/day',
+     sub:rem>0?`${Math.ceil(rem/3)} days remaining`:'162/162 complete',
+     card:'orange'},
+    {icon:'🔥',
+     value:streak+'d',
+     vcls:streak>=7?'g':streak>=3?'a':'r',
+     label:'Current streak',
+     sub:streak>=7?'Elite discipline!':streak>=3?'Building momentum':streak>=1?'Keep it going!':'Start your streak',
+     card:streak>=7?'good':streak>=3?'warn':'info'},
+  ];
+  document.getElementById('motiv-grid').innerHTML=cards.map(c=>`
+    <div class="mc ${c.card}">
+      <div class="mci">${c.icon}</div>
+      <div class="mcv ${c.vcls}">${c.value}</div>
+      <div class="mcl">${c.label}</div>
+      <div class="mcs">${c.sub}</div>
+    </div>`).join('');
+}
+
+function renderCal(){
+  const grid=document.getElementById('cal-grid'),map=getDailyMap(),today=tdk();
+  const startMs=startDate?new Date(startDate).getTime():Infinity;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('cal-month').textContent=months[calMonth]+' '+calYear;
+  let h='';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{h+=`<div class="cdow">${d}</div>`});
+  const fd=new Date(calYear,calMonth,1).getDay();
+  for(let i=0;i<fd;i++)h+=`<div class="cc empty"></div>`;
+  const dim=new Date(calYear,calMonth+1,0).getDate();
+  for(let d=1;d<=dim;d++){
+    const k=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cnt=map[k]||0,isFut=k>today,isPast=k<today&&new Date(k).getTime()>=startMs;
+    let cls='cc';
+    if(k===today)cls+=' today';
+    else if(isFut)cls+=' future';
+    else if(isPast&&cnt===0)cls+=' miss';
+    if(cnt===1)cls+=' s1';else if(cnt===2)cls+=' s2';else if(cnt>=3)cls+=' s3';
+    h+=`<div class="${cls}"><div class="cn">${d}</div>${cnt>0?`<div class="cs">${cnt}s</div>`:''}</div>`;
+  }
+  grid.innerHTML=h;
+}
+const calPrev=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCal()};
+const calNext=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCal()};
+
+function renderLog(){
+  const list=document.getElementById('log-list');
+  if(!log.length){list.innerHTML='<div class="le-empty">No activity yet — start marking sets done.</div>';return}
+  list.innerHTML=[...log].reverse().slice(0,50).map(e=>`
+    <div class="le">
+      <div class="lts">${e.ts}</div>
+      <div class="ln">${e.label}</div>
+      <div class="ltag ${e.action}">${e.action==='done'?'Done':'Undone'}</div>
+    </div>`).join('');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────
+function toggle(id,label){
+  const isNew=!done.has(id);
+  if(isNew){done.add(id);if(!startDate){startDate=tdk();lsRaw(LS.start,startDate)}}
+  else done.delete(id);
+  lsSet(LS.done,[...done]);
+  const now=new Date();
+  const ts=now.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' '+now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  log.push({ts,date:tdk(),label,action:isNew?'done':'undo'});
+  if(log.length>300)log=log.slice(-300);
+  lsSet(LS.log,log);
+  showToast(isNew?'✓ '+label:'Undone: '+label,isNew?'green':'red');
+  render();
+}
+
+function resetDay(){
+  const tk=tdk();log=log.filter(e=>e.date!==tk);lsRaw(LS.log,log);
+  showToast("Today's session log cleared");render();
+}
+
+function clearLog(){log=[];lsRaw(LS.log,[]);showToast('Log cleared');renderLog()}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify({done:[...done],log,startDate,exportedAt:new Date().toISOString(),v:3},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='dilr_backup_'+tdk()+'.json';a.click();
+  showToast('Backup exported','green');
+}
+
+function importData(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);
+        if(d.done){done=new Set(d.done);lsRaw(LS.done,d.done)}
+        if(d.log){log=d.log;lsRaw(LS.log,log)}
+        if(d.startDate){startDate=d.startDate;lsRaw(LS.start,startDate)}
+        render();showToast('Imported: '+done.size+' sets done','green');
+      }catch{showToast('Import failed — invalid file')}
+    };r.readAsText(f);
+  };inp.click();
+}
+
+// ── BUILD DOM ─────────────────────────────────────────────
+const cont=document.getElementById('era-container');
+PAPERS.forEach(era=>{
+  const et=era.papers.reduce((a,p)=>a+p.sets,0);
+  const ed=document.createElement('div');ed.className='era-block';
+  ed.innerHTML=`<div class="era-hdr"><div class="era-name">${era.era}</div><div class="era-pb" id="ep_${era.ek}">0 / ${et}</div></div><div class="era-mb"><div class="era-mbf" id="mf_${era.ek}" style="width:0%"></div></div><div class="era-body" id="eb_${era.ek}"></div>`;
+  cont.appendChild(ed);
+  const body=document.getElementById('eb_'+era.ek);
+  era.papers.forEach(p=>{
+    const pb=document.createElement('div');pb.className='pr';
+    const meta=document.createElement('div');meta.className='pm';
+    meta.innerHTML=`<div class="pn">${p.name}</div><div class="pct" id="pc_${p.id}">0 / ${p.sets}</div>`;
+    const sw=document.createElement('div');sw.className='psw';
+    const row=document.createElement('div');row.className='srow';
+    for(let i=0;i<p.sets;i++){
+      const id=p.id+'_'+i,lbl=p.name+' — Set '+(i+1);
+      const b=document.createElement('div');b.className='sb';b.id=id;b.textContent='S'+(i+1);
+      b.onclick=()=>toggle(id,lbl);row.appendChild(b);
+    }
+    sw.appendChild(row);pb.appendChild(meta);pb.appendChild(sw);body.appendChild(pb);
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────
+render();
+(async()=>{
+  const cfg=getGHCfg();
+  if(cfg?.token&&cfg?.gistId){const ok=await pullFromGist(cfg);if(ok)render()}
+  else setSyncUI('offline','not set up');
+})();
+</script>
+</body>
+</html>
