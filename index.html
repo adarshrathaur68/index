@@ -242,13 +242,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div class="rtext"><div class="rpct" id="ring-pct">0%</div><div class="rlbl">complete</div></div>
     </div>
     <div class="bw">
-      <div class="bl"><span id="bar-done">0 done</span><span id="bar-rem">162 left</span></div>
+      <div class="bl"><span id="bar-done">0 done</span><span id="bar-rem">500 left</span></div>
       <div class="bb"><div class="bf" id="main-bar" style="width:0%"></div></div>
     </div>
   </div>
   <div class="sg">
     <div class="sc"><div class="sl">Done</div><div class="sv o" id="s-done">0</div></div>
-    <div class="sc"><div class="sl">Remaining</div><div class="sv" id="s-rem">162</div></div>
+    <div class="sc"><div class="sl">Remaining</div><div class="sv" id="s-rem">500</div></div>
     <div class="sc"><div class="sl">Days left @3/d</div><div class="sv" id="s-days">54</div></div>
     <div class="sc"><div class="sl">Streak</div><div class="sv g" id="s-streak">0d</div></div>
     <div class="sc"><div class="sl">Avg / day</div><div class="sv" id="s-avg">—</div></div>
@@ -325,7 +325,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <section>
     <div class="sh">
       <span class="st">Mission control</span>
-      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)" id="exam-cd"></span>
     </div>
     <div class="mg" id="motiv-grid"></div>
     <div class="blw">
@@ -334,7 +333,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <div class="blexp" id="blexp" style="width:0%"></div>
         <div class="blact" id="blact" style="width:0%"></div>
       </div>
-      <div class="bllbls"><span id="bll-act">You: 0</span><span id="bll-exp">Expected: 0</span><span>Total: 162</span></div>
+      <div class="bllbls"><span id="bll-act">You: 0</span><span id="bll-exp">Expected: 0</span><span>Total: 500</span></div>
       <div class="blverd neutral" id="blverd"></div>
     </div>
   </section>
@@ -409,7 +408,7 @@ const PAPERS=[
     {name:"CAT 2002",id:"2002",sets:3},{name:"CAT 2001",id:"2001",sets:3},{name:"CAT 2000",id:"2000",sets:3},
   ]},
 ];
-const TOTAL=162;
+const TOTAL=500;
 const CAT_DATE=new Date('2026-11-29');
 const LS={done:'dilr_done',log:'dilr_log',start:'dilr_start'};
 const GH_KEY='dilr_gh_cfg';
@@ -691,7 +690,7 @@ function render(){
   for(let i=0;i<3;i++)document.getElementById('td'+i).className='td'+(i<tc?(tc>=3?' complete':' active'):'');
   const sb=document.getElementById('streak-badge');
   if(streak>=2){sb.textContent='🔥 '+streak+'d';sb.style.display=''}else sb.style.display='none';
-  document.getElementById('exam-cd').textContent='CAT 2026: '+getDaysToExam()+'d away';
+  document.getElementById('exam-cd').textContent='';
 
   // Era blocks
   PAPERS.forEach(era=>{
@@ -711,8 +710,7 @@ function render(){
 function renderMotiv(){
   const bl=getBacklog(),streak=getStreak(),elapsed=getElapsed();
   const avg=done.size?(done.size/Math.max(1,elapsed)):0;
-  const missed=getMissedDays(),dte=getDaysToExam(),rem=TOTAL-done.size;
-  const needPerDay=dte>0?Math.ceil(rem/dte):rem;
+  const missed=getMissedDays(),rem=TOTAL-done.size;
 
   // ── Backlog bar ──
   const bpct=Math.round(bl.expected/TOTAL*100),apct=Math.round(done.size/TOTAL*100);
@@ -728,8 +726,7 @@ function renderMotiv(){
     const catchDays=Math.ceil(bl.behind/3);
     verd.className='blverd behind';
     verd.innerHTML=`⚠ <b>${bl.behind} set${bl.behind>1?'s':''} behind</b> target pace — that's a <b>${catchDays}-day backlog</b>. `
-      +`To finish before CAT 2026 you need <b>${needPerDay}/day</b> from today. `
-      +(bl.behind>=9?` At current pace you'll miss <b>${Math.round(bl.behind/3*7)} weeks</b> of planned coverage.`:'');
+      +`At 3/day that's a <b>${catchDays}-day backlog</b>. Do <b>${Math.ceil(bl.behind/Math.max(1,7))}</b> extra sets this week to recover.`;
   } else if(bl.ahead>0){
     verd.className='blverd ahead';
     verd.innerHTML=`✓ <b>${bl.ahead} set${bl.ahead>1?'s':''} ahead</b> — excellent! On track to finish <b>${getFinishDate()}</b> with buffer to spare.`;
@@ -760,16 +757,16 @@ function renderMotiv(){
      sub:effAvg>=3?'On target':effAvg>0?`Need +${(3-effAvg).toFixed(1)}/day`:'No data yet',
      card:effAvg>=3?'good':effAvg>=2?'warn':'danger'},
     {icon:'⏰',
-     value:dte+'d',
-     vcls:dte>60?'g':dte>30?'a':'r',
-     label:'Days to CAT 2026',
-     sub:rem>0?`Need ${needPerDay}/day to finish`:'All sets done! 🎉',
-     card:dte>60?'good':dte>30?'warn':'danger'},
+     value:rem+'',
+     vcls:rem<=30?'g':rem<=80?'a':'o',
+     label:'Sets remaining',
+     sub:rem===0?'All done! 🎉':`${Math.ceil(rem/3)} days at 3/day`,
+     card:rem<=30?'good':rem<=80?'warn':'orange'},
     {icon:'🏁',
      value:rem>0?getFinishDate():'Done!',
      vcls:'o',
      label:'Finish date @3/day',
-     sub:rem>0?`${Math.ceil(rem/3)} days remaining`:'162/162 complete',
+     sub:rem>0?`${Math.ceil(rem/3)} days remaining`:'500/500 complete',
      card:'orange'},
     {icon:'🔥',
      value:streak+'d',
